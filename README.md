@@ -1,4 +1,4 @@
-src / run Client.jar or Main.java
+src / run Client.jar or Main.java in console. 
 
-Chat server needed 
+Chat server needed be up and running first
 
