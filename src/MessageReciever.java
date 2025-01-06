@@ -7,12 +7,14 @@ import java.time.format.DateTimeFormatter;
 
 public class MessageReciever {
 
-    //    fetch host and port from MessageSender
-
     private final static String FAILED_SENDER = "MessageSender is not connected";
+
     private final static String CHAT_HEADER = "<--------Chat--------> ";
+
     private Socket socket;
+
     private BufferedReader in;
+
     private MessageQue messageQue;
 
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
@@ -21,6 +23,7 @@ public class MessageReciever {
         if (validateMessageSender(messageSender)) {
             in = new BufferedReader(new InputStreamReader(messageSender.getSocket().getInputStream()));
             messageQue = new MessageQue();
+            this.socket = messageSender.getSocket();
         } else {
             System.out.println(FAILED_SENDER);
         }
@@ -34,6 +37,8 @@ public class MessageReciever {
             result = in.readLine();
         } catch (IOException e) {
             e.getMessage();
+            System.out.println("Connection lost");
+            return "Connection lost";
         }
         sb.append(dtf.format(dateTime));
         sb.append(" - ");
@@ -51,16 +56,20 @@ public class MessageReciever {
     }
 
     public boolean validateMessageSender(MessageSender messageSender) {
-        if (messageSender == null) {
+        if (messageSender == null || messageSender.getSocket() == null) {
             return false;
         }
         return messageSender.getSocket().isConnected();
     }
 
+    public Socket getSocket() {
+        return socket;
+    }
+
     public void close() {
         try {
             in.close();
-            if(socket != null){
+            if (socket != null) {
                 socket.close();
             }
         } catch (IOException e) {

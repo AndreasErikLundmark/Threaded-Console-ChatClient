@@ -32,6 +32,15 @@ public class RecieveChatThread extends Thread {
                     stopThis();
                     break;
                 }
+                if(messageReciever.getSocket()==null||messageReciever.getSocket().isClosed()){
+                    terminateChat.execute();
+                    messageReciever.close();
+                    stopThis();
+                    System.out.println("Connection lost");
+                    break;
+                }
+
+
                 messageReciever.getMessage();
 
                 if (!terminateChat.isStopped()) {
@@ -45,9 +54,13 @@ public class RecieveChatThread extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 System.out.println("Chat connection lost");
+                messageReciever.close();
+                stopThis();
             } finally {
                 if (terminateChat.isStopped()) {
                     System.out.println("Chat receiver stopped");
+                    messageReciever.close();
+                    stopThis();
                 }
             }
         }

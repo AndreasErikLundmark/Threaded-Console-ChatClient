@@ -7,10 +7,8 @@ public class MessageQue {
 
     private int maxQeueSize = 100;
 
-
     public MessageQue() {
         this.messageQueue = new LinkedList<>();
-
     }
 
     public void addMsg(String message) {

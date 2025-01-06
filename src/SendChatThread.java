@@ -19,11 +19,9 @@ public class SendChatThread extends Thread {
     private final Scanner scanner;
 
     public SendChatThread(MessageSender messageSender, Scanner scanner) {
-
         validateMessageSender(messageSender);
         this.messageSender = messageSender;
         this.scanner = scanner;
-
     }
 
     private synchronized boolean running() {
@@ -32,7 +30,6 @@ public class SendChatThread extends Thread {
 
     public void stopThis() {
         this.stop = true;
-
     }
 
     @Override
@@ -49,9 +46,14 @@ public class SendChatThread extends Thread {
                     System.out.println("Chat end");
                     break;
                 }
-                    setMessage(messageSender.getAuthor() + messageNew);
-                    setSendMessage(true);
-
+                if (messageSender.getSocket() == null || !messageSender.getSocket().isConnected()) {
+                    terminateChat.execute();
+                    messageSender.close();
+                    stopThis();
+                    System.out.println("Connection lost");
+                }
+                setMessage(messageSender.getAuthor() + messageNew);
+                setSendMessage(true);
 
                 if (sendMessage) {
                     if (validateMessage(message)) {
@@ -68,6 +70,7 @@ public class SendChatThread extends Thread {
             } finally {
                 if (terminateChat.isStopped()) {
                     stopThis();
+
                 }
             }
         }

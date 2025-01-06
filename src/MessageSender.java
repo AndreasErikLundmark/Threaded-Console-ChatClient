@@ -13,7 +13,7 @@ public class MessageSender {
 
     private int port;
 
-    private final Socket socket;
+    private Socket socket = null;
 
     private PrintWriter out;
 
@@ -26,24 +26,20 @@ public class MessageSender {
     public MessageSender(String hostName, int port) throws IOException {
         setHost(hostName);
         setPort(port);
-        socket = new Socket(getHost(), getPort());
-        if (validateConnection(socket)) {
-            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.ISO_8859_1), true);
-        }
-    }
+        try {
+            while (socket==null) {
+                System.out.println("Connecting to server...");
+                socket = new Socket(getHost(), getPort());
 
-    public MessageSender() throws IOException {
-        socket = new Socket(DEFAULT_HOST, DEFAULT_PORT);
-        if (validateConnection(socket)) {
-            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "ISO-8859-1"), true);
-        }
-    }
+            }
+            if (validateConnection(socket)) {
+                out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.ISO_8859_1), true);
+            }
+        }catch(ConnectException e){
+            System.out.println(FAILED_MESSAGE);
 
-    public MessageSender(String hostName) throws IOException {
-        setHost(hostName);
-        socket = new Socket(getHost(), DEFAULT_PORT);
-        if (validateConnection(socket)) {
-            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.ISO_8859_1), true);
+        }catch(IOException e){
+            System.out.println(FAILED_MESSAGE);
         }
     }
 
@@ -80,11 +76,17 @@ public class MessageSender {
     }
 
     public boolean validateConnection(Socket socket) {
+        if(socket==null){
+            System.out.println(FAILED_MESSAGE);
+            return false;
+        }
+
         if (socket.isConnected()) {
             System.out.println(CONNECTED_MESSAGE + socket.getInetAddress().getHostName() + " on port " + socket.getPort());
-        } else {
-            System.out.println(FAILED_MESSAGE);
-        }
+        }else{
+                System.out.println(FAILED_MESSAGE);
+                return false;
+            }
         return socket.isConnected();
     }
 
